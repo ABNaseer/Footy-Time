@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1096656087748",
+    "project_id": "abnaseer-mad",
+    "storage_bucket": "abnaseer-mad.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096656087748:android:bd9a427db027add63af791",
+        "android_client_info": {
+          "package_name": "com.abnaseer.mad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmMUZVZsEuboya4i0pjqCqFGnwelHJQM0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
