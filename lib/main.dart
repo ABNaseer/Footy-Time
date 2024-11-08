@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/auth/splash.dart';
-import 'theme/theme.dart'; // Import the theme file
+import 'splash.dart';
+import 'theme.dart'; // Import the theme file
 
 void main() {
   runApp(MyApp());
