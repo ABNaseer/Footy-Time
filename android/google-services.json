@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "455035774982",
+    "project_id": "com-abnaseer-mad",
+    "storage_bucket": "com-abnaseer-mad.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455035774982:android:37e1459fc3219675c9bb87",
+        "android_client_info": {
+          "package_name": "com.abnaseer.mad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "455035774982-jg1c60761h2v5kph0ki50gi7jav1fb3e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAt1MmMgP8FCQDf2sJNWof7JA5IX1RiRHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "455035774982-jg1c60761h2v5kph0ki50gi7jav1fb3e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "455035774982-ogh556ik75fdj1b328en63qifv7iop4q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mad"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
