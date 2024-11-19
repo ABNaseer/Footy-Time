@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 
 final ThemeData appTheme = ThemeData(
-  // Define the default brightness and colors.
-  brightness: Brightness.dark,
-  primaryColor: Colors.green[800], // Dark Green color
-  scaffoldBackgroundColor: Colors.green[900], // Darker background for the app
+  // Light color scheme
+  brightness: Brightness.light,
+  primaryColor: Colors.green[500], // Slightly richer green
+  scaffoldBackgroundColor: Colors.green[50], // Subtle green background
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.green[800], // Dark Green for the app bar
+    backgroundColor: Colors.green[500], // Rich green for the app bar
+    elevation: 0, // Minimalist flat app bar
   ),
   buttonTheme: ButtonThemeData(
-    buttonColor: Colors.green[700], // Button color
+    buttonColor: Colors.green[400], // Richer button green
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
     ),
   ),
   textTheme: TextTheme(
     bodyLarge: TextStyle(
-      color: Colors.white, // Default text color for body
+      color: Colors.black87, // Default text color for body
     ),
     bodyMedium: TextStyle(
-      color: Colors.white70, // Secondary text color
+      color: Colors.black54, // Secondary text color
     ),
     titleLarge: TextStyle(
-      color: Colors.white, // Text style for titles
+      color: Colors.black87, // Text style for titles
       fontWeight: FontWeight.bold,
     ),
   ),

@@ -1,28 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Add this package for SVG support
 
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Get screen size for relative positioning
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
         children: [
-          SizedBox(height: 50), // Adds some space from the top
-          Text(
-            'Footy Time',
-            style: GoogleFonts.roboto(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          // Centered football icon
+          Center(
+            child: SvgPicture.asset(
+              'assets/football_icon2.svg', // Use an SVG football icon for scalability
+              width: size.width * 0.4, // 40% of screen width
             ),
           ),
-          SizedBox(height: 20), // Space between text and image
-          Image.asset(
-            'assets/img1.png', // Ensure the path and name are correct
-            width: 150, // Adjust as needed
-            height: 150,
+          // Footer text
+          Positioned(
+            bottom: size.height * 0.05, // 5% from the bottom
+            width: size.width, // Full width
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Footy Time by Abdullah Naseer',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'FA22-BSE-018',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ],
       ),
