@@ -67,8 +67,8 @@ class _SignupPageState extends State<SignupPage> {
       return;
     }
 
-    if (phone.length != 10 || int.tryParse(phone) == null) {
-      _showSnackbar("Please enter a valid 10-digit phone number.");
+    if (phone.length != 11 || int.tryParse(phone) == null) {
+      _showSnackbar("Please enter a valid 11-digit PK phone number.");
       return;
     }
 
