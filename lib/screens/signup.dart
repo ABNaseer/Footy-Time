@@ -1,4 +1,3 @@
-//signup.dart
 import 'package:flutter/material.dart';
 import '../services/user_service.dart'; // Import the new user service
 
@@ -12,7 +11,9 @@ class _SignupPageState extends State<SignupPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _dobController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   String? _selectedPosition;
 
@@ -46,16 +47,28 @@ class _SignupPageState extends State<SignupPage> {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
     final dob = _dobController.text.trim();
+    final phone = _phoneController.text.trim();
 
     // Validate inputs
-    if (name.isEmpty || email.isEmpty || password.isEmpty || dob.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty || dob.isEmpty || phone.isEmpty) {
       _showSnackbar("All fields are required.");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showSnackbar("Passwords do not match.");
       return;
     }
 
     if (password.length < 6) {
       _showSnackbar("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (phone.length != 10 || int.tryParse(phone) == null) {
+      _showSnackbar("Please enter a valid 10-digit phone number.");
       return;
     }
 
@@ -65,6 +78,7 @@ class _SignupPageState extends State<SignupPage> {
       email: email,
       password: password,
       dateOfBirth: dob,
+      phone: phone,
       primaryPosition: _selectedPosition,
     );
 
@@ -129,6 +143,17 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 SizedBox(height: 16),
                 TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: "Confirm Password",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                TextField(
                   controller: _dobController,
                   decoration: InputDecoration(
                     labelText: "Date of Birth",
@@ -141,6 +166,17 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   readOnly: true,
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: "Phone Number",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 16),
                 DropdownButtonFormField<String>(

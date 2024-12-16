@@ -10,7 +10,9 @@ class UserService {
     required String email,
     required String password,
     required String dateOfBirth,
+    required String phone,
     String? primaryPosition,
+    List<String>? roles,
   }) async {
     try {
       // Create user in Firebase Authentication
@@ -25,7 +27,9 @@ class UserService {
         'email': email,
         'dateOfBirth': dateOfBirth,
         'primaryPosition': primaryPosition,
-        'role': 'Player', // Default role
+        'roles': roles ?? ['Player'], // Default role is Player
+        'phone': phone,
+        'teamId': null, // Default value for no team
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -44,6 +48,35 @@ class UserService {
       }
     } catch (e) {
       return "Unexpected error occurred";
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchUserData(String userId) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('users').doc(userId).get();
+      return snapshot.data();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> updateUserProfile({
+    required String userId,
+    String? name,
+    String? phone,
+    String? primaryPosition,
+  }) async {
+    try {
+      Map<String, dynamic> updates = {};
+      if (name != null) updates['name'] = name;
+      if (phone != null) updates['phone'] = phone;
+      if (primaryPosition != null) updates['primaryPosition'] = primaryPosition;
+
+      await _firestore.collection('users').doc(userId).update(updates);
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }
