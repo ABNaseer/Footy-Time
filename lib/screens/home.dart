@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> {
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _selectedIndex,
               backgroundColor: Colors.green[800],
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.grey,
+              selectedItemColor: Colors.green[400], // Highlight selected item with a lighter green
+              unselectedItemColor: Colors.black, // Unselected items in a lighter shade of green
               items: [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),
