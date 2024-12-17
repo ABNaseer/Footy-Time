@@ -27,16 +27,15 @@ class FirestoreService {
     }
   }
 
-  // New method to fetch team details by teamId
   Future<Map<String, dynamic>?> fetchTeamDetails(String teamId) async {
     try {
       final teamDoc = await _firestore.collection('teams').doc(teamId).get();
       if (teamDoc.exists) {
-        return teamDoc.data(); // Returns the team details as a map
+        return teamDoc.data();
       }
-      return null; // Return null if the team is not found
+      return null;
     } catch (e) {
-      return null; // Return null if there was an error fetching the details
+      return null;
     }
   }
 
@@ -57,7 +56,6 @@ class FirestoreService {
           'playerIds': FieldValue.arrayUnion([userId]),
         });
 
-        // Update the user's teamId after joining
         await updateUserTeam(userId, teamId);
         return true;
       }
@@ -80,7 +78,11 @@ class FirestoreService {
   Future<List<Map<String, dynamic>>> fetchTeams() async {
     try {
       final teamSnapshot = await _firestore.collection('teams').get();
-      return teamSnapshot.docs.map((doc) => doc.data()).toList();
+      return teamSnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
     } catch (e) {
       return [];
     }
@@ -90,11 +92,10 @@ class FirestoreService {
     return DateTime.now().millisecondsSinceEpoch.toString().substring(6);
   }
 
-  // Update user's teamId in Firestore (Handles null for leaving the team)
   Future<void> updateUserTeam(String userId, String? teamId) async {
     try {
       await _firestore.collection('users').doc(userId).update({
-        'teamId': teamId ?? '',  // Use an empty string if teamId is null
+        'teamId': teamId ?? '',
       });
     } catch (e) {
       throw Exception("Failed to update user's team ID");
@@ -136,7 +137,7 @@ class FirestoreService {
         'tournamentId': tournamentId,
         'team1Id': team1Id,
         'team2Id': team2Id,
-        'score': {'team1': 0, 'team2': 0}, // Default score
+        'score': {'team1': 0, 'team2': 0},
         'matchDate': matchDate.toIso8601String(),
       });
       return matchRef.id;
