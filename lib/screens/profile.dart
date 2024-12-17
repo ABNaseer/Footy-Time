@@ -1,8 +1,7 @@
-// profile.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mad/services/user_service.dart';
 
 class MyProfilePage extends StatefulWidget {
   @override
@@ -12,6 +11,7 @@ class MyProfilePage extends StatefulWidget {
 class _MyProfilePageState extends State<MyProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final UserService _userService = UserService();
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
@@ -63,12 +63,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 Text(
                   'My Profile',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.person, size: 50, color: Colors.white),
                 ),
                 SizedBox(height: 16),
 
