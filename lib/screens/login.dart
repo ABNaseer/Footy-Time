@@ -1,4 +1,4 @@
-//login.dart
+// login.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'signup.dart';
@@ -105,7 +105,12 @@ class LoginPage extends StatelessWidget {
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
+                        MaterialPageRoute(
+                          builder: (context) => SignupPage(
+                            email: emailController.text,
+                            password: passwordController.text,
+                          ),
+                        ),
                       ),
                       child: Text(
                         "Sign up",

@@ -1,3 +1,5 @@
+// user_service.dart
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +27,7 @@ class UserService {
         password: password,
       );
 
-      // Store additional user info in Firestore, including profilePicture
+      // Store additional user info in Firestore, including profilePicture and default stats as 0
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'name': name,
         'email': email,
@@ -35,6 +37,11 @@ class UserService {
         'phone': phone,
         'teamId': null, // Default value for no team
         'profilePicture': profilePicture ?? '', // Save profile picture URL if provided
+        'goals': 0,  // Set goals to 0
+        'assists': 0, // Set assists to 0
+        'yellowCards': 0, // Set yellow cards to 0
+        'redCards': 0, // Set red cards to 0
+        'matchMVP': 0, // Set Match MVP count to 0
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -56,7 +63,7 @@ class UserService {
     }
   }
 
-  // Fetch user data
+  // Fetch user data including stats like MVP, Goals, Assists, Yellow Cards, Red Cards
   Future<Map<String, dynamic>?> fetchUserData(String userId) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
@@ -129,6 +136,30 @@ class UserService {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  // Update user stats (Goals, Assists, Yellow Cards, Red Cards)
+  Future<bool> updateUserStats({
+    required String userId,
+    int? goals,
+    int? assists,
+    int? yellowCards,
+    int? redCards,
+    int? matchMVP, // Add Match MVP stat
+  }) async {
+    try {
+      Map<String, dynamic> updates = {};
+      updates['goals'] = goals ?? 0; // Set goals to 0 if not provided
+      updates['assists'] = assists ?? 0; // Set assists to 0 if not provided
+      updates['yellowCards'] = yellowCards ?? 0; // Set yellow cards to 0 if not provided
+      updates['redCards'] = redCards ?? 0; // Set red cards to 0 if not provided
+      updates['matchMVP'] = matchMVP ?? 0; // Set Match MVP to 0 if not provided
+
+      await _firestore.collection('users').doc(userId).update(updates);
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

@@ -1,4 +1,3 @@
-//firestore_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
@@ -8,18 +7,63 @@ class FirestoreService {
   Future<String?> createTeam({
     required String name,
     required String captainId,
-    required List<String> playerIds,
+    required String abbreviation,
+    required String location,
   }) async {
     try {
+      final inviteCode = generateUniqueCode();
       final teamRef = await _firestore.collection('teams').add({
         'name': name,
         'captainId': captainId,
-        'playerIds': playerIds,
+        'abbreviation': abbreviation,
+        'location': location,
+        'inviteCode': inviteCode,
+        'playerIds': [captainId],
         'createdAt': FieldValue.serverTimestamp(),
       });
       return teamRef.id;
     } catch (e) {
       return null;
+    }
+  }
+
+  // New method to fetch team details by teamId
+  Future<Map<String, dynamic>?> fetchTeamDetails(String teamId) async {
+    try {
+      final teamDoc = await _firestore.collection('teams').doc(teamId).get();
+      if (teamDoc.exists) {
+        return teamDoc.data(); // Returns the team details as a map
+      }
+      return null; // Return null if the team is not found
+    } catch (e) {
+      return null; // Return null if there was an error fetching the details
+    }
+  }
+
+  Future<bool> joinTeamWithInviteCode({
+    required String userId,
+    required String inviteCode,
+  }) async {
+    try {
+      final teamQuery = await _firestore
+          .collection('teams')
+          .where('inviteCode', isEqualTo: inviteCode)
+          .get();
+
+      if (teamQuery.docs.isNotEmpty) {
+        final teamId = teamQuery.docs.first.id;
+
+        await _firestore.collection('teams').doc(teamId).update({
+          'playerIds': FieldValue.arrayUnion([userId]),
+        });
+
+        // Update the user's teamId after joining
+        await updateUserTeam(userId, teamId);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -30,6 +74,30 @@ class FirestoreService {
       });
     } catch (e) {
       throw Exception("Failed to add player to team");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTeams() async {
+    try {
+      final teamSnapshot = await _firestore.collection('teams').get();
+      return teamSnapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  String generateUniqueCode() {
+    return DateTime.now().millisecondsSinceEpoch.toString().substring(6);
+  }
+
+  // Update user's teamId in Firestore (Handles null for leaving the team)
+  Future<void> updateUserTeam(String userId, String? teamId) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'teamId': teamId ?? '',  // Use an empty string if teamId is null
+      });
+    } catch (e) {
+      throw Exception("Failed to update user's team ID");
     }
   }
 

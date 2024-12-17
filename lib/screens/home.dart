@@ -1,4 +1,3 @@
-// home.dart
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,6 +29,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // Logout method
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      // Optionally, navigate to the login screen after logging out
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error logging out")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -53,6 +63,19 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.exit_to_app, color: Colors.white), // Set icon color to white
+                  onPressed: _logout, // Call logout method when tapped
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    'Logout', 
+                    style: TextStyle(color: Colors.white), // Set text color to white
+                  ),
+                ),
+              ],
             ),
             body: _screens[_selectedIndex], // Display the selected screen
             bottomNavigationBar: BottomNavigationBar(

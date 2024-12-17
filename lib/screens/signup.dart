@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import '../services/user_service.dart'; // Import the new user service
+import '../services/user_service.dart';
 
 class SignupPage extends StatefulWidget {
+  final String email;
+  final String password;
+
+  SignupPage({required this.email, required this.password});
+
   @override
   _SignupPageState createState() => _SignupPageState();
 }
@@ -20,6 +25,13 @@ class _SignupPageState extends State<SignupPage> {
   final List<String> _positions = [
     'Goalkeeper', 'Defender', 'Midfielder', 'Forward'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.email; // Pre-populate email
+    _passwordController.text = widget.password; // Pre-populate password
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(

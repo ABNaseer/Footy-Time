@@ -75,6 +75,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   onTap: () {
                     setState(() {
                       _isEditingName = true;
+                      _nameController.text = userData['name'] ?? '';
                     });
                   },
                   onSave: () {
@@ -85,6 +86,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       });
                     }
                   },
+                  showEditIcon: false,
                 ),
 
                 // Phone Field
@@ -96,6 +98,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   onTap: () {
                     setState(() {
                       _isEditingPhone = true;
+                      _phoneController.text = userData['phone'] ?? '';
                     });
                   },
                   onSave: () {
@@ -106,6 +109,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       });
                     }
                   },
+                  showEditIcon: false,
                 ),
 
                 // Position Field
@@ -144,12 +148,38 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         )
                       : null,
                 ),
-                SizedBox(height: 16),
+
+                // Stats Section
+                SizedBox(height: 20),
+                Text(
+                  'Match Stats',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                _buildStatField(label: 'Match MVP', value: userData['matchMVP'] ?? 0),
+                _buildStatField(label: 'Goals', value: userData['goals'] ?? 0),
+                _buildStatField(label: 'Assists', value: userData['assists'] ?? 0),
+                _buildStatField(label: 'Yellow Cards', value: userData['yellowCards'] ?? 0),
+                _buildStatField(label: 'Red Cards', value: userData['redCards'] ?? 0),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStatField({required String label, required dynamic value}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        children: [
+          Text(label, style: TextStyle(fontSize: 16)),
+          Spacer(),
+          // Convert any value to String, including int values
+          Text(value.toString(), style: TextStyle(fontSize: 16)),
+        ],
+      ),
     );
   }
 
@@ -161,6 +191,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     required VoidCallback onTap,
     required VoidCallback onSave,
     Widget? dropdown,
+    bool showEditIcon = true,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -183,7 +214,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   : Text(value),
             ],
           ),
-          if (!isEditing)
+          if (showEditIcon && !isEditing)
             IconButton(
               icon: Icon(Icons.edit),
               onPressed: onTap,

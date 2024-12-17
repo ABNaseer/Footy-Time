@@ -1,73 +1,120 @@
-// team.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mad/services/firestore_service.dart';
 
-class TeamPage extends StatelessWidget {
+class TeamPage extends StatefulWidget {
+  @override
+  _TeamPageState createState() => _TeamPageState();
+}
+
+class _TeamPageState extends State<TeamPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirestoreService _firestoreService = FirestoreService();
+  bool _isLoading = false;
 
-  Future<Map<String, dynamic>> _fetchTeamData() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      final userDoc = await _firestore.collection('users').doc(user.uid).get();
-      return userDoc.data() ?? {};
+  // Fetches all teams from Firestore
+  Future<List<Map<String, dynamic>>> _fetchTeams() async {
+    final teamsSnapshot = await FirebaseFirestore.instance.collection('teams').get();
+    return teamsSnapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<void> _joinTeam(String teamId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      setState(() {
+        _isLoading = true;
+      });
+      final success = await _firestoreService.joinTeamWithInviteCode(userId: userId, inviteCode: teamId);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Joined team successfully!')),
+        );
+        setState(() {});  // Refresh the page to update the teamId
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid invite code')),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
     }
-    return {};
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _fetchTeamData(),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _fetchTeams(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting || _isLoading) {
           return Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('Error loading data'));
+          return Center(child: Text('Error loading teams'));
         }
 
-        final userData = snapshot.data ?? {};
-        final teamId = userData['teamId'];
+        final teams = snapshot.data ?? [];
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'My Team',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              teamId != null
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Team: $teamId'),
-                        ElevatedButton(
-                          onPressed: () {
-                            // You can add functionality to leave the team
-                          },
-                          child: Text('Leave Team'),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        Text('You are not part of a team.'),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Navigate to create or join a team
-                          },
-                          child: Text('Join/Create Team'),
-                        ),
-                      ],
-                    ),
-            ],
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Teams'),
+          ),
+          body: ListView.builder(
+            itemCount: teams.length,
+            itemBuilder: (context, index) {
+              final team = teams[index];
+              final teamId = team['id'];
+              final teamName = team['name'] ?? 'No Name';
+              final abbreviation = team['abbreviation'] ?? 'N/A';
+              final location = team['location'] ?? 'Unknown';
+              final captainName = team['captainName'] ?? 'Unknown';
+
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(color: Colors.green, width: 2),
+                ),
+                margin: EdgeInsets.all(10),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        teamName,
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,  // Centered team name
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        abbreviation,
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                        textAlign: TextAlign.center,  // Centered abbreviation
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Captain: $captainName',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Location: $location',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          _joinTeam(teamId);  // Function to join team
+                        },
+                        child: Text('Join Team'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         );
       },
