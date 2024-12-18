@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // TEAM METHODS
   Future<String?> createTeam({
     required String name,
     required String captainId,
@@ -19,6 +19,8 @@ class FirestoreService {
         'location': location,
         'inviteCode': inviteCode,
         'playerIds': [captainId],
+        'wins': 0,
+        'losses': 0,
         'createdAt': FieldValue.serverTimestamp(),
       });
       return teamRef.id;
@@ -102,61 +104,67 @@ class FirestoreService {
     }
   }
 
-  // TOURNAMENT METHODS
-  Future<String?> createTournament({
-    required String name,
-    required String hostId,
-    required List<String> teamIds,
-    required DateTime startDate,
-    required DateTime endDate,
-  }) async {
+  Future<void> updateTeamRecord(String teamId, bool isWin) async {
     try {
-      final tournamentRef = await _firestore.collection('tournaments').add({
-        'name': name,
-        'hostId': hostId,
-        'teamIds': teamIds,
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-        'createdAt': FieldValue.serverTimestamp(),
+      await _firestore.collection('teams').doc(teamId).update({
+        isWin ? 'wins' : 'losses': FieldValue.increment(1),
       });
-      return tournamentRef.id;
     } catch (e) {
-      return null;
+      throw Exception("Failed to update team record");
     }
   }
 
-  // MATCH METHODS
-  Future<String?> createMatch({
-    required String tournamentId,
-    required String team1Id,
-    required String team2Id,
-    required DateTime matchDate,
-  }) async {
+  Future<void> leaveTeam(String userId, String teamId) async {
     try {
-      final matchRef = await _firestore.collection('matches').add({
-        'tournamentId': tournamentId,
-        'team1Id': team1Id,
-        'team2Id': team2Id,
-        'score': {'team1': 0, 'team2': 0},
-        'matchDate': matchDate.toIso8601String(),
-      });
-      return matchRef.id;
+      final teamDoc = await _firestore.collection('teams').doc(teamId).get();
+      final teamData = teamDoc.data() as Map<String, dynamic>;
+      final playerIds = List<String>.from(teamData['playerIds']);
+      
+      playerIds.remove(userId);
+      
+      if (playerIds.isEmpty) {
+        // If no players left, delete the team
+        await _firestore.collection('teams').doc(teamId).delete();
+      } else {
+        // Update team with new player list
+        await _firestore.collection('teams').doc(teamId).update({
+          'playerIds': playerIds,
+        });
+        
+        // If the leaving user was the captain, assign a new random captain
+        if (teamData['captainId'] == userId) {
+          final newCaptainId = playerIds[Random().nextInt(playerIds.length)];
+          await _firestore.collection('teams').doc(teamId).update({
+            'captainId': newCaptainId,
+          });
+        }
+      }
+      
+      // Update user's team ID to null
+      await updateUserTeam(userId, null);
     } catch (e) {
-      return null;
+      throw Exception("Failed to leave team");
     }
   }
 
-  Future<void> updateMatchScore({
-    required String matchId,
-    required int team1Score,
-    required int team2Score,
-  }) async {
+  Future<List<Map<String, dynamic>>> fetchTeamPlayers(String teamId) async {
     try {
-      await _firestore.collection('matches').doc(matchId).update({
-        'score': {'team1': team1Score, 'team2': team2Score},
-      });
+      final teamDoc = await _firestore.collection('teams').doc(teamId).get();
+      final teamData = teamDoc.data() as Map<String, dynamic>;
+      final playerIds = List<String>.from(teamData['playerIds']);
+      
+      final playersData = await Future.wait(
+        playerIds.map((playerId) => _firestore.collection('users').doc(playerId).get())
+      );
+      
+      return playersData.map((playerDoc) {
+        final data = playerDoc.data() as Map<String, dynamic>;
+        data['id'] = playerDoc.id;
+        return data;
+      }).toList();
     } catch (e) {
-      throw Exception("Failed to update match score");
+      return [];
     }
   }
 }
+

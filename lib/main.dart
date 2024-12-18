@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Football App',
+      title: 'Footy Time',
       theme: appTheme,
       initialRoute: '/splash',
       routes: {
