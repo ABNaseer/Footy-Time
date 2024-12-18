@@ -290,7 +290,7 @@ class _TeamPageState extends State<TeamPage> {
                     onPressed: _leaveTeam,
                     child: Text('Leave Team'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
                     ),
                   ),
@@ -312,7 +312,7 @@ class _TeamPageState extends State<TeamPage> {
                     onPressed: _showJoinTeamDialog,
                     child: Text('Join Team'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                     ),
                   ),
@@ -328,36 +328,27 @@ class _TeamPageState extends State<TeamPage> {
                         final team = _teams[index];
                         return Card(
                           shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                             side: BorderSide(color: Colors.green, width: 2),
-                            borderRadius: BorderRadius.circular(8),
                           ),
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Center(
-                              child: Text(
-                                team['name'],
-                                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          margin: EdgeInsets.symmetric(vertical: 10),
+                          child: InkWell(
+                            onTap: () => _showTeamDetails(team),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    team['name'],
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text('Location: ${team['location']}'),
+                                  Text('Wins: ${team['wins']}, Losses: ${team['losses']}'),
+                                  Text('Captain: ${team['captainName']}'),
+                                ],
                               ),
                             ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text("Abbreviation: ${team['abbreviation']}"),
-                                Text("Captain: ${team['captainName']} (C)"),
-                                Text("Location: ${team['location']}"),
-                                Text("Wins: ${team['wins']}, Losses: ${team['losses']}"),
-                                Text("Top Scorer: ${team['topScorer']}"),
-                                Text("Top Assists: ${team['topAssists']}"),
-                                if (team['captainId'] == _userId)
-                                  Column(
-                                    children: [
-                                      Divider(),
-                                      Text("Invite Code: ${team['inviteCode']}"),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                            onTap: () => _showTeamDetails(team),
                           ),
                         );
                       },
