@@ -29,18 +29,6 @@ class FirestoreService {
     }
   }
 
-  Future<Map<String, dynamic>?> fetchTeamDetails(String teamId) async {
-    try {
-      final teamDoc = await _firestore.collection('teams').doc(teamId).get();
-      if (teamDoc.exists) {
-        return teamDoc.data();
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<bool> joinTeamWithInviteCode({
     required String userId,
     required String inviteCode,
@@ -67,33 +55,6 @@ class FirestoreService {
     }
   }
 
-  Future<void> addPlayerToTeam(String teamId, String playerId) async {
-    try {
-      await _firestore.collection('teams').doc(teamId).update({
-        'playerIds': FieldValue.arrayUnion([playerId]),
-      });
-    } catch (e) {
-      throw Exception("Failed to add player to team");
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> fetchTeams() async {
-    try {
-      final teamSnapshot = await _firestore.collection('teams').get();
-      return teamSnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  String generateUniqueCode() {
-    return DateTime.now().millisecondsSinceEpoch.toString().substring(6);
-  }
-
   Future<void> updateUserTeam(String userId, String? teamId) async {
     try {
       await _firestore.collection('users').doc(userId).update({
@@ -101,16 +62,6 @@ class FirestoreService {
       });
     } catch (e) {
       throw Exception("Failed to update user's team ID");
-    }
-  }
-
-  Future<void> updateTeamRecord(String teamId, bool isWin) async {
-    try {
-      await _firestore.collection('teams').doc(teamId).update({
-        isWin ? 'wins' : 'losses': FieldValue.increment(1),
-      });
-    } catch (e) {
-      throw Exception("Failed to update team record");
     }
   }
 
@@ -166,5 +117,54 @@ class FirestoreService {
       return [];
     }
   }
-}
 
+  // Fetches the top scorer based on the highest total goals
+  Future<String?> fetchTopScorer(String teamId) async {
+    try {
+      final players = await fetchTeamPlayers(teamId);
+      
+      String? topScorer;
+      int highestGoals = 0;
+
+      for (var player in players) {
+        final totalGoals = player['totalGoals'] ?? 0;
+
+        if (totalGoals > highestGoals) {
+          highestGoals = totalGoals;
+          topScorer = player['name'];
+        }
+      }
+
+      return topScorer ?? 'N/A'; // Return 'N/A' if no scorer found
+    } catch (e) {
+      return 'Error'; // In case of error, return 'Error'
+    }
+  }
+
+  // Fetches the top assist player based on the highest total assists
+  Future<String?> fetchTopAssists(String teamId) async {
+    try {
+      final players = await fetchTeamPlayers(teamId);
+      
+      String? topAssist;
+      int highestAssists = 0;
+
+      for (var player in players) {
+        final totalAssists = player['totalAssists'] ?? 0;
+
+        if (totalAssists > highestAssists) {
+          highestAssists = totalAssists;
+          topAssist = player['name'];
+        }
+      }
+
+      return topAssist ?? 'N/A'; // Return 'N/A' if no assists found
+    } catch (e) {
+      return 'Error'; // In case of error, return 'Error'
+    }
+  }
+
+  String generateUniqueCode() {
+    return DateTime.now().millisecondsSinceEpoch.toString().substring(6);
+  }
+}
