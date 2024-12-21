@@ -125,155 +125,170 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Football Matches'),
-        backgroundColor: Colors.green,
-      ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+      appBar: null, // Removed the AppBar
+      body: Column(
+        children: [
+          // Centered heading with green text
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'News',
+              style: TextStyle(
+                color: Colors.green,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-            )
-          : RefreshIndicator(
-              onRefresh: _fetchMatches,
-              child: _matches.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No matches available',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _matches.length,
-                      itemBuilder: (context, index) {
-                        final match = _matches[index];
-                        final matchDate = DateTime.parse(match['utcDate']);
-                        final leagueName = match['competition']['name'] ?? 'Unknown League';
-                        final status = match['status'] ?? 'TIMED'; // Default to TIMED if no status
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _fetchMatches,
+                    child: _matches.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No matches available',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: _matches.length,
+                            itemBuilder: (context, index) {
+                              final match = _matches[index];
+                              final matchDate = DateTime.parse(match['utcDate']);
+                              final leagueName = match['competition']['name'] ?? 'Unknown League';
+                              final status = match['status'] ?? 'TIMED'; // Default to TIMED if no status
 
-                        final homeTeamName = match['homeTeam']['name'] ?? 'Unknown Team';
-                        final awayTeamName = match['awayTeam']['name'] ?? 'Unknown Team';
+                              final homeTeamName = match['homeTeam']['name'] ?? 'Unknown Team';
+                              final awayTeamName = match['awayTeam']['name'] ?? 'Unknown Team';
 
-                        final homeScore = _getScore(match['score'], 'home');
-                        final awayScore = _getScore(match['score'], 'away');
+                              final homeScore = _getScore(match['score'], 'home');
+                              final awayScore = _getScore(match['score'], 'away');
 
-                        return Card(
-                          margin: EdgeInsets.all(8),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          color: _getMatchStatusColor(status), // Set background color based on status
-                          child: Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Centered League Name
-                                Center(
-                                  child: Text(
-                                    leagueName,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
+                              return Card(
+                                margin: EdgeInsets.all(8),
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                SizedBox(height: 12),
-                                // Match Date and Time
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      _formatDate(matchDate),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      _formatTime(matchDate),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 12),
-                                // Teams and Score
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        homeTeamName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 8),
-                                      child: Text(
-                                        'vs.',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        awayTeamName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
-                                        textAlign: TextAlign.right,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                // Display Score
-                                Padding(
-                                  padding: EdgeInsets.only(top: 8),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                color: _getMatchStatusColor(status), // Set background color based on status
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
+                                      // Centered League Name
+                                      Center(
+                                        child: Text(
+                                          leagueName,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 12),
+                                      // Match Date and Time
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            _formatDate(matchDate),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            _formatTime(matchDate),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 12),
+                                      // Teams and Score
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              homeTeamName,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 8),
+                                            child: Text(
+                                              'vs.',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              awayTeamName,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 8),
+                                      // Display Score
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '$homeScore - $awayScore',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Match Status
+                                      SizedBox(height: 8),
                                       Text(
-                                        '$homeScore - $awayScore',
+                                        'Status: ${_getMatchStatus(status)}',
                                         style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
                                           color: Colors.white,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                // Match Status
-                                SizedBox(height: 8),
-                                Text(
-                                  'Status: ${_getMatchStatus(status)}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-            ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
