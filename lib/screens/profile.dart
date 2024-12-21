@@ -45,123 +45,166 @@ class _MyProfilePageState extends State<MyProfilePage> {
       future: _fetchUserData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+          ));
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('Error loading data'));
+          return Center(child: Text('Error loading data', style: TextStyle(color: Colors.red)));
         }
 
         final userData = snapshot.data ?? {};
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'My Profile',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.green.shade50, Colors.white],
+              ),
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'My Profile',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade800,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            _buildEditableField(
+                              label: 'Name',
+                              value: userData['name'] ?? 'N/A',
+                              isEditing: _isEditingName,
+                              controller: _nameController,
+                              onTap: () {
+                                setState(() {
+                                  _isEditingName = true;
+                                  _nameController.text = userData['name'] ?? '';
+                                });
+                              },
+                              onSave: () {
+                                if (_nameController.text.isNotEmpty) {
+                                  _updateProfile('name', _nameController.text);
+                                  setState(() {
+                                    _isEditingName = false;
+                                  });
+                                }
+                              },
+                              showEditIcon: false,
+                            ),
+                            _buildEditableField(
+                              label: 'Phone Number',
+                              value: userData['phone'] ?? 'N/A',
+                              isEditing: _isEditingPhone,
+                              controller: _phoneController,
+                              onTap: () {
+                                setState(() {
+                                  _isEditingPhone = true;
+                                  _phoneController.text = userData['phone'] ?? '';
+                                });
+                              },
+                              onSave: () {
+                                if (_phoneController.text.isNotEmpty) {
+                                  _updateProfile('phone', _phoneController.text);
+                                  setState(() {
+                                    _isEditingPhone = false;
+                                  });
+                                }
+                              },
+                              showEditIcon: false,
+                            ),
+                            _buildEditableField(
+                              label: 'Primary Position',
+                              value: userData['primaryPosition'] ?? 'N/A',
+                              isEditing: _isEditingPosition,
+                              controller: TextEditingController(text: userData['primaryPosition']),
+                              onTap: () {
+                                setState(() {
+                                  _isEditingPosition = true;
+                                });
+                              },
+                              onSave: () {
+                                if (_selectedPosition != null) {
+                                  _updateProfile('primaryPosition', _selectedPosition!);
+                                  setState(() {
+                                    _isEditingPosition = false;
+                                  });
+                                }
+                              },
+                              dropdown: _isEditingPosition
+                                  ? DropdownButton<String>(
+                                      value: _selectedPosition,
+                                      items: _positions.map((String position) {
+                                        return DropdownMenuItem<String>(
+                                          value: position,
+                                          child: Text(position),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedPosition = value;
+                                        });
+                                      },
+                                      style: TextStyle(color: Colors.green.shade800),
+                                      dropdownColor: Colors.green.shade50,
+                                    )
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Match Stats',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade800,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            _buildStatField(label: 'Match MVP', value: userData['matchMVP'] ?? 0),
+                            _buildStatField(label: 'Goals ⚽', value: userData['goals'] ?? 0),
+                            _buildStatField(label: 'Assists', value: userData['assists'] ?? 0),
+                            _buildStatField(label: 'Yellow Cards', value: userData['yellowCards'] ?? 0),
+                            _buildStatField(label: 'Red Cards', value: userData['redCards'] ?? 0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 16),
-
-                // Name Field
-                _buildEditableField(
-                  label: 'Name',
-                  value: userData['name'] ?? 'N/A',
-                  isEditing: _isEditingName,
-                  controller: _nameController,
-                  onTap: () {
-                    setState(() {
-                      _isEditingName = true;
-                      _nameController.text = userData['name'] ?? '';
-                    });
-                  },
-                  onSave: () {
-                    if (_nameController.text.isNotEmpty) {
-                      _updateProfile('name', _nameController.text);
-                      setState(() {
-                        _isEditingName = false;
-                      });
-                    }
-                  },
-                  showEditIcon: false,
-                ),
-
-                // Phone Field
-                _buildEditableField(
-                  label: 'Phone Number',
-                  value: userData['phone'] ?? 'N/A',
-                  isEditing: _isEditingPhone,
-                  controller: _phoneController,
-                  onTap: () {
-                    setState(() {
-                      _isEditingPhone = true;
-                      _phoneController.text = userData['phone'] ?? '';
-                    });
-                  },
-                  onSave: () {
-                    if (_phoneController.text.isNotEmpty) {
-                      _updateProfile('phone', _phoneController.text);
-                      setState(() {
-                        _isEditingPhone = false;
-                      });
-                    }
-                  },
-                  showEditIcon: false,
-                ),
-
-                // Position Field
-                _buildEditableField(
-                  label: 'Primary Position',
-                  value: userData['primaryPosition'] ?? 'N/A',
-                  isEditing: _isEditingPosition,
-                  controller: TextEditingController(text: userData['primaryPosition']),
-                  onTap: () {
-                    setState(() {
-                      _isEditingPosition = true;
-                    });
-                  },
-                  onSave: () {
-                    if (_selectedPosition != null) {
-                      _updateProfile('primaryPosition', _selectedPosition!);
-                      setState(() {
-                        _isEditingPosition = false;
-                      });
-                    }
-                  },
-                  dropdown: _isEditingPosition
-                      ? DropdownButton<String>(
-                          value: _selectedPosition,
-                          items: _positions.map((String position) {
-                            return DropdownMenuItem<String>(
-                              value: position,
-                              child: Text(position),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPosition = value;
-                            });
-                          },
-                        )
-                      : null,
-                ),
-
-                // Stats Section
-                SizedBox(height: 20),
-                Text(
-                  'Match Stats',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                _buildStatField(label: 'Match MVP', value: userData['matchMVP'] ?? 0),
-                _buildStatField(label: 'Goals', value: userData['goals'] ?? 0),
-                _buildStatField(label: 'Assists', value: userData['assists'] ?? 0),
-                _buildStatField(label: 'Yellow Cards', value: userData['yellowCards'] ?? 0),
-                _buildStatField(label: 'Red Cards', value: userData['redCards'] ?? 0),
-              ],
+              ),
             ),
           ),
         );
@@ -171,13 +214,33 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   Widget _buildStatField({required String label, required dynamic value}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Text(label, style: TextStyle(fontSize: 16)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.green.shade800,
+            ),
+          ),
           Spacer(),
-          // Convert any value to String, including int values
-          Text(value.toString(), style: TextStyle(fontSize: 16)),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.green.shade100,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              value.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.green.shade800,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -195,37 +258,58 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.green.shade800,
+            ),
+          ),
+          SizedBox(height: 4),
+          Row(
             children: [
-              Text(label),
-              SizedBox(height: 4),
-              isEditing
-                  ? (dropdown ??
-                      TextField(
-                        controller: controller,
-                        decoration: InputDecoration(
-                          hintText: value,
+              Expanded(
+                child: isEditing
+                    ? (dropdown ??
+                        TextField(
+                          controller: controller,
+                          decoration: InputDecoration(
+                            hintText: value,
+                            filled: true,
+                            fillColor: Colors.green.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          style: TextStyle(color: Colors.green.shade800),
+                        ))
+                    : Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
                         ),
-                      ))
-                  : Text(value),
+                      ),
+              ),
+              if (showEditIcon)
+                IconButton(
+                  icon: Icon(
+                    isEditing ? Icons.check : Icons.edit,
+                    color: Colors.green.shade800,
+                  ),
+                  onPressed: isEditing ? onSave : onTap,
+                ),
             ],
           ),
-          if (showEditIcon && !isEditing)
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: onTap,
-            ),
-          if (isEditing)
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: onSave,
-            ),
         ],
       ),
     );
   }
 }
+

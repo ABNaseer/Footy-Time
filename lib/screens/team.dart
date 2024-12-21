@@ -100,10 +100,13 @@ class _TeamPageState extends State<TeamPage> {
                 return ListTile(
                   title: Text(
                     player['name'],
-                    style: TextStyle(color: isUser ? Colors.orange : Colors.black),
+                    style: TextStyle(
+                      color: isUser ? Colors.green : Colors.black,
+                      fontWeight: isUser ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                   subtitle: Text(player['primaryPosition'] ?? 'Unknown'),
-                  trailing: isUser ? Text("(You)") : null,
+                  trailing: isUser ? Text("(You)", style: TextStyle(color: Colors.green)) : null,
                 );
               }).toList(),
               if (team['captainId'] == _userId)
@@ -312,7 +315,7 @@ class _TeamPageState extends State<TeamPage> {
                     onPressed: _showJoinTeamDialog,
                     child: Text('Join Team'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                     ),
                   ),
@@ -329,7 +332,10 @@ class _TeamPageState extends State<TeamPage> {
                         return Card(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.green, width: 2),
+                            side: BorderSide(
+                              color: team['id'] == _userTeamId ? Colors.green.shade800 : Colors.green,
+                              width: team['id'] == _userTeamId ? 3 : 2,
+                            ),
                           ),
                           margin: EdgeInsets.symmetric(vertical: 10),
                           child: InkWell(
@@ -341,7 +347,11 @@ class _TeamPageState extends State<TeamPage> {
                                 children: [
                                   Text(
                                     team['name'],
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: team['id'] == _userTeamId ? Colors.green.shade800 : Colors.black,
+                                    ),
                                   ),
                                   Text('Location: ${team['location']}'),
                                   Text('Wins: ${team['wins']}, Losses: ${team['losses']}'),
@@ -360,3 +370,4 @@ class _TeamPageState extends State<TeamPage> {
     );
   }
 }
+

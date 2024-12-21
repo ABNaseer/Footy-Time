@@ -1,6 +1,7 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mad/screens/news.dart';
 import 'profile.dart'; // Import your profile page
 import 'team.dart'; // Import your team page
 import 'matches.dart'; // Import your tournament page
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
     TeamPage(),
     MatchPage(),
     ShopPage(),
+    NewsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -99,6 +101,10 @@ class _HomePageState extends State<HomePage> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.store),
                   label: 'Shop',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(FontAwesomeIcons.newspaper),
+                  label: 'News',
                 ),
               ],
               onTap: _onItemTapped, // Handle the navigation tap
