@@ -1,4 +1,4 @@
-package com.example.mad
+package com.abnaseer.mad
 
 import io.flutter.embedding.android.FlutterActivity
 
