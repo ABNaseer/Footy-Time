@@ -28,7 +28,6 @@ class _NewsPageState extends State<NewsPage> {
       final matches = await _newsService.fetchMatches();
       setState(() {
         _matches = matches;
-        _matches.sort((a, b) => DateTime.parse(b['utcDate']).compareTo(DateTime.parse(a['utcDate']))); // Sort matches from latest to oldest
         _isLoading = false;
       });
     } catch (e) {
@@ -44,11 +43,14 @@ class _NewsPageState extends State<NewsPage> {
   void _applyFilter(String filter) {
     setState(() {
       _filter = filter;
+      // Filter the matches based on the selected status
       if (filter == 'All') {
         _fetchMatches();
       } else {
         _matches = _newsService.filterMatchesByStatus(_matches, filter);
       }
+      // Sort the filtered matches based on the date
+      _matches.sort((a, b) => DateTime.parse(b['utcDate']).compareTo(DateTime.parse(a['utcDate'])));
     });
   }
 

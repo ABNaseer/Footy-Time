@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
 class NewsService {
-  final String apiKey = '6bbb90f3f6b345fb8aedcb8982ca6b18'; // Your API Key
+  final String apiKey = '6bbb90f3f6b345fb8aedcb8982ca6b18';
 
   Future<List<dynamic>> fetchMatches() async {
     final url = Uri.parse('https://api.football-data.org/v4/matches');
@@ -73,45 +73,59 @@ class NewsService {
   }
 
   String getMatchStatus(String status) {
-    if (status == 'IN_PLAY') {
-      return 'IN PLAY';
-    } else if (status == 'FINISHED') {
+    if (status == 'IN_PLAY' || status == 'PAUSED') {
+      return 'ONGOING';
+    } else if (status == 'FINISHED' || status == 'COMPLETED') {
       return 'FINISHED';
+    } else if (status == 'TIMED' || status == 'SCHEDULED') {
+      return 'UPCOMING';
     } else {
-      return 'TIMED';
+      return status;
     }
   }
 
   Color getMatchStatusColor(String status) {
-    if (status == 'IN_PLAY') {
-      return Colors.blue;
-    } else if (status == 'FINISHED') {
-      return Colors.brown;
-    } else {
-      return Colors.green;
+    switch (status) {
+      case 'ONGOING':
+        return Colors.blue;
+      case 'FINISHED':
+        return Colors.brown;
+      case 'UPCOMING':
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
+  }
+
+  List<dynamic> getOngoingMatches(List<dynamic> matches) {
+    return matches.where((match) => 
+      match['status'] == 'IN_PLAY' || match['status'] == 'PAUSED'
+    ).toList();
+  }
+
+  List<dynamic> getUpcomingMatches(List<dynamic> matches) {
+    return matches.where((match) => 
+      match['status'] == 'TIMED' || match['status'] == 'SCHEDULED'
+    ).toList();
+  }
+
+  List<dynamic> getFinishedMatches(List<dynamic> matches) {
+    return matches.where((match) => 
+      match['status'] == 'FINISHED' || match['status'] == 'COMPLETED'
+    ).toList();
   }
 
   List<dynamic> filterMatchesByStatus(List<dynamic> matches, String filter) {
-    if (filter == 'All') {
-      return matches;
+    switch (filter) {
+      case 'Ongoing':
+        return getOngoingMatches(matches);
+      case 'Upcoming':
+        return getUpcomingMatches(matches);
+      case 'Finished':
+        return getFinishedMatches(matches);
+      case 'All':
+      default:
+        return matches;
     }
-
-    // Handle filter by specific status
-    return matches.where((match) {
-      final status = getMatchStatus(match['status']);
-      if (filter == 'Ongoing') {
-        return status == 'IN_PLAY';  // Ongoing matches
-      } else if (filter == 'Upcoming') {
-        return status == 'SCHEDULED';  // Scheduled but not started matches
-      } else if (filter == 'Finished') {
-        return status == 'FINISHED';  // Completed matches
-      }
-      return false;  // Default case (should not hit this if filter is valid)
-    }).toList();
-  }
-
-  void sortMatchesByCompetition(List<dynamic> matches) {
-    matches.sort((a, b) => a['competition']['name'].compareTo(b['competition']['name']));
   }
 }
