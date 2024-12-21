@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/news_service.dart'; // Import the NewsService
 import 'package:intl/intl.dart';
 
 class NewsPage extends StatefulWidget {
@@ -11,6 +10,8 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   List<dynamic> _matches = [];
   bool _isLoading = true;
+  String _filter = 'All'; // Filter for match status
+  final NewsService _newsService = NewsService();
 
   @override
   void initState() {
@@ -19,25 +20,17 @@ class _NewsPageState extends State<NewsPage> {
   }
 
   Future<void> _fetchMatches() async {
-    final url = Uri.parse('https://api.football-data.org/v4/matches');
-    final apiKey = '6bbb90f3f6b345fb8aedcb8982ca6b18'; // Your API Key
-
     try {
-      final response = await http.get(
-        url,
-        headers: {'X-Auth-Token': apiKey}, // Send API key in header
-      );
+      setState(() {
+        _isLoading = true;
+      });
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _matches = data['matches'] ?? [];
-          _matches.sort((a, b) => DateTime.parse(b['utcDate']).compareTo(DateTime.parse(a['utcDate']))); // Sort matches from latest to oldest
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load matches: ${response.reasonPhrase}');
-      }
+      final matches = await _newsService.fetchMatches();
+      setState(() {
+        _matches = matches;
+        _matches.sort((a, b) => DateTime.parse(b['utcDate']).compareTo(DateTime.parse(a['utcDate']))); // Sort matches from latest to oldest
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -48,78 +41,15 @@ class _NewsPageState extends State<NewsPage> {
     }
   }
 
-  // Format the date as Today, Yesterday, Tomorrow
-  String _formatDate(DateTime dateTime) {
-    final localTime = dateTime.toLocal();
-    final now = DateTime.now();
-    final difference = localTime.difference(now);
-
-    if (difference.inDays == 0) {
-      return 'Today';
-    } else if (difference.inDays == 1) {
-      return 'Tomorrow';
-    } else if (difference.inDays == -1) {
-      return 'Yesterday';
-    } else {
-      return '${localTime.day}/${localTime.month}/${localTime.year}';
-    }
-  }
-
-  // Format time in local AM/PM format
-  String _formatTime(DateTime dateTime) {
-    final localTime = dateTime.toLocal();
-    final timeFormat = DateFormat.jm(); // This will give AM/PM format
-    return timeFormat.format(localTime);
-  }
-
-  // Safe way to get score data
-  String _getScore(dynamic score, String team) {
-    if (score == null) {
-      return 'N/A'; // For future matches
-    }
-
-    // Check for fullTime score (finished match)
-    if (score['fullTime'] != null) {
-      if (team == 'home') {
-        return score['fullTime']['home'].toString(); // Home team full-time score
-      } else if (team == 'away') {
-        return score['fullTime']['away'].toString(); // Away team full-time score
+  void _applyFilter(String filter) {
+    setState(() {
+      _filter = filter;
+      if (filter == 'All') {
+        _fetchMatches();
+      } else {
+        _matches = _newsService.filterMatchesByStatus(_matches, filter);
       }
-    }
-
-    // If the match is ongoing (IN_PLAY), check for half-time score
-    if (score['halfTime'] != null) {
-      if (team == 'home') {
-        return score['halfTime']['home'].toString(); // Home team half-time score
-      } else if (team == 'away') {
-        return score['halfTime']['away'].toString(); // Away team half-time score
-      }
-    }
-
-    // If neither fullTime nor halfTime, return 'N/A'
-    return 'N/A';
-  }
-
-  // Determine match status display
-  String _getMatchStatus(String status) {
-    if (status == 'IN_PLAY') {
-      return 'IN PLAY';
-    } else if (status == 'FINISHED') {
-      return 'FINISHED';
-    } else {
-      return 'TIMED'; // For upcoming matches
-    }
-  }
-
-  // Determine the background color for each match status
-  Color _getMatchStatusColor(String status) {
-    if (status == 'IN_PLAY') {
-      return Colors.blue; // IN PLAY matches will be blue
-    } else if (status == 'FINISHED') {
-      return Colors.brown; // FINISHED matches will be brown
-    } else {
-      return Colors.green; // TIMED matches (future) will be green
-    }
+    });
   }
 
   @override
@@ -128,7 +58,6 @@ class _NewsPageState extends State<NewsPage> {
       appBar: null, // Removed the AppBar
       body: Column(
         children: [
-          // Centered heading with green text
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
@@ -139,6 +68,53 @@ class _NewsPageState extends State<NewsPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _applyFilter('Ongoing');
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                child: Text(
+                  'Ongoing',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  _applyFilter('Upcoming');
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: Text(
+                  'Upcoming',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  _applyFilter('Finished');
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.brown),
+                child: Text(
+                  'Finished',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  _applyFilter('All');
+                },
+                child: Text(
+                  'All Matches',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: _isLoading
@@ -162,13 +138,14 @@ class _NewsPageState extends State<NewsPage> {
                               final match = _matches[index];
                               final matchDate = DateTime.parse(match['utcDate']);
                               final leagueName = match['competition']['name'] ?? 'Unknown League';
-                              final status = match['status'] ?? 'TIMED'; // Default to TIMED if no status
-
+                              final status = match['status'] ?? 'TIMED';
                               final homeTeamName = match['homeTeam']['name'] ?? 'Unknown Team';
                               final awayTeamName = match['awayTeam']['name'] ?? 'Unknown Team';
-
-                              final homeScore = _getScore(match['score'], 'home');
-                              final awayScore = _getScore(match['score'], 'away');
+                              final homeScore = _newsService.getScore(match['score'], 'home');
+                              final awayScore = _newsService.getScore(match['score'], 'away');
+                              final homeTeamCrest = match['homeTeam']['crest'] ?? ''; // Team crest URL
+                              final awayTeamCrest = match['awayTeam']['crest'] ?? ''; // Team crest URL
+                              final leagueLogo = match['competition']['emblem'] ?? ''; // League logo URL
 
                               return Card(
                                 margin: EdgeInsets.all(8),
@@ -176,13 +153,23 @@ class _NewsPageState extends State<NewsPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                color: _getMatchStatusColor(status), // Set background color based on status
+                                color: _newsService.getMatchStatusColor(status),
                                 child: Padding(
                                   padding: EdgeInsets.all(16),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // Centered League Name
+                                      Center(
+                                        child: leagueLogo.isNotEmpty
+                                            ? Image.network(
+                                                leagueLogo,
+                                                width: 40,
+                                                height: 40,
+                                                fit: BoxFit.contain,
+                                              )
+                                            : SizedBox(),
+                                      ),
+                                      SizedBox(height: 12),
                                       Center(
                                         child: Text(
                                           leagueName,
@@ -194,19 +181,18 @@ class _NewsPageState extends State<NewsPage> {
                                         ),
                                       ),
                                       SizedBox(height: 12),
-                                      // Match Date and Time
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            _formatDate(matchDate),
+                                            _newsService.formatDate(matchDate),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 14,
                                             ),
                                           ),
                                           Text(
-                                            _formatTime(matchDate),
+                                            _newsService.formatKickoffTime(matchDate),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 14,
@@ -215,10 +201,14 @@ class _NewsPageState extends State<NewsPage> {
                                         ],
                                       ),
                                       SizedBox(height: 12),
-                                      // Teams and Score
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
+                                          CircleAvatar(
+                                            backgroundImage: NetworkImage(homeTeamCrest),
+                                            radius: 20,
+                                          ),
+                                          SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               homeTeamName,
@@ -250,10 +240,13 @@ class _NewsPageState extends State<NewsPage> {
                                               textAlign: TextAlign.right,
                                             ),
                                           ),
+                                          CircleAvatar(
+                                            backgroundImage: NetworkImage(awayTeamCrest),
+                                            radius: 20,
+                                          ),
                                         ],
                                       ),
                                       SizedBox(height: 8),
-                                      // Display Score
                                       Padding(
                                         padding: EdgeInsets.only(top: 8),
                                         child: Row(
@@ -270,10 +263,9 @@ class _NewsPageState extends State<NewsPage> {
                                           ],
                                         ),
                                       ),
-                                      // Match Status
                                       SizedBox(height: 8),
                                       Text(
-                                        'Status: ${_getMatchStatus(status)}',
+                                        'Status: ${_newsService.getMatchStatus(status)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
