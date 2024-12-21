@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'profile.dart'; // Import your profile page
 import 'team.dart'; // Import your team page
-import 'tournament.dart'; // Import your tournament page
+import 'matches.dart'; // Import your tournament page
 import 'shop.dart'; // Import your shop page
 import 'login.dart'; // Import login page
 
@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _screens = [
     MyProfilePage(), // Default screen
     TeamPage(),
-    TournamentPage(),
+    MatchPage(),
     ShopPage(),
   ];
 
@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(FontAwesomeIcons.trophy),
-                  label: 'Tournament',
+                  label: 'Matches',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.store),
