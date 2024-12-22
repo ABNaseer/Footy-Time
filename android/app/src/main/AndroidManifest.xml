@@ -2,7 +2,7 @@
     package="com.abnaseer.mad">
         <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="mad"
+        android:label="Footy Time"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
