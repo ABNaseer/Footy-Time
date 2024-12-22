@@ -7,7 +7,15 @@ class NewsService {
   final String apiKey = '6bbb90f3f6b345fb8aedcb8982ca6b18';
 
   Future<List<dynamic>> fetchMatches() async {
-    final url = Uri.parse('https://api.football-data.org/v4/matches');
+    final now = DateTime.now();
+    final yesterday = now.subtract(Duration(days: 1));
+    final tomorrow = now.add(Duration(days: 1));
+
+    final dateFormat = DateFormat("yyyy-MM-dd");
+    final fromDate = dateFormat.format(yesterday);
+    final toDate = dateFormat.format(tomorrow);
+
+    final url = Uri.parse('https://api.football-data.org/v4/matches?dateFrom=$fromDate&dateTo=$toDate');
     
     try {
       final response = await http.get(
@@ -128,4 +136,16 @@ class NewsService {
         return matches;
     }
   }
+
+  List<dynamic> filterMatchesWithin24Hours(List<dynamic> matches) {
+    final now = DateTime.now();
+    final yesterday = now.subtract(Duration(days: 1));
+    final tomorrow = now.add(Duration(days: 1));
+
+    return matches.where((match) {
+      final matchDate = DateTime.parse(match['utcDate']).toLocal();
+      return matchDate.isAfter(yesterday) && matchDate.isBefore(tomorrow);
+    }).toList();
+  }
 }
+

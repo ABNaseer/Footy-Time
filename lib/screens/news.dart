@@ -71,50 +71,29 @@ class _NewsPageState extends State<NewsPage> {
               ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  _applyFilter('Ongoing');
-                },
+                onPressed: () => _applyFilter('Ongoing'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: Text(
-                  'Ongoing',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('Ongoing', style: TextStyle(color: Colors.white)),
               ),
-              SizedBox(width: 8),
               ElevatedButton(
-                onPressed: () {
-                  _applyFilter('Upcoming');
-                },
+                onPressed: () => _applyFilter('Upcoming'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: Text(
-                  'Upcoming',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('Upcoming', style: TextStyle(color: Colors.white)),
               ),
-              SizedBox(width: 8),
               ElevatedButton(
-                onPressed: () {
-                  _applyFilter('Finished');
-                },
+                onPressed: () => _applyFilter('Finished'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.brown),
-                child: Text(
-                  'Finished',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('Finished', style: TextStyle(color: Colors.white)),
               ),
-              SizedBox(width: 8),
               ElevatedButton(
-                onPressed: () {
-                  _applyFilter('All');
-                },
-                child: Text(
-                  'All Matches',
-                  style: TextStyle(color: Colors.black),
-                ),
+                onPressed: () => _applyFilter('All'),
+                child: Text('All Matches', style: TextStyle(color: Colors.black)),
               ),
             ],
           ),
@@ -155,7 +134,7 @@ class _NewsPageState extends State<NewsPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                color: _newsService.getMatchStatusColor(status),
+                                color: Colors.green,
                                 child: Padding(
                                   padding: EdgeInsets.all(16),
                                   child: Column(
@@ -286,3 +265,4 @@ class _NewsPageState extends State<NewsPage> {
     );
   }
 }
+
