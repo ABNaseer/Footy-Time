@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+  import 'package:flutter/material.dart';
 import '../services/news_service.dart'; // Import the NewsService
 class NewsPage extends StatefulWidget {
   @override

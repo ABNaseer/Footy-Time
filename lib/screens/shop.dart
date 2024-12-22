@@ -1,5 +1,3 @@
-// shop.dart
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,50 +17,89 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Shop'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _showAddItemDialog(context),
-          ),
-        ],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _shopService.getShopItems(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Shop',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.add, color: Colors.white),
+                    label: Text('Sell Item', style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: () => _showAddItemDialog(context),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _shopService.getShopItems(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-          List<Item> items = snapshot.data!.docs.map((doc) => Item.fromMap(doc.id, doc.data() as Map<String, dynamic>)).toList();
+                  List<Item> items = snapshot.data!.docs
+                      .map((doc) => Item.fromMap(doc.id, doc.data() as Map<String, dynamic>))
+                      .toList();
 
-          return ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              return _buildItemCard(items[index]);
-            },
-          );
-        },
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return _buildItemCard(items[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildItemCard(Item item) {
     return Card(
-      margin: EdgeInsets.all(8.0),
-      child: ListTile(
-        title: Text(item.name),
-        subtitle: Column(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              item.name,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
             Text(item.description),
-            Text('Price: \$${item.price.toStringAsFixed(2)}'),
+            SizedBox(height: 8),
+            Text(
+              'Price: PKR ${item.price.toStringAsFixed(2)}',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+            ),
             Text('Category: ${item.category}'),
+            SizedBox(height: 8),
             FutureBuilder<Map<String, dynamic>?>(
               future: _userService.fetchPublicUserProfile(item.sellerId),
               builder: (context, snapshot) {
@@ -72,17 +109,29 @@ class _ShopPageState extends State<ShopPage> {
                 if (snapshot.hasError || !snapshot.hasData) {
                   return Text('Error loading seller info');
                 }
-                return Text('Seller: ${snapshot.data!['name']} - ${snapshot.data!['phone']}');
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Seller: ${snapshot.data!['name']}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('Phone: ${snapshot.data!['phone']}'),
+                  ],
+                );
               },
             ),
+            if (FirebaseAuth.instance.currentUser?.uid == item.sellerId)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  label: Text('Delete', style: TextStyle(color: Colors.red)),
+                  onPressed: () => _deleteItem(item.id),
+                ),
+              ),
           ],
         ),
-        trailing: FirebaseAuth.instance.currentUser?.uid == item.sellerId
-            ? IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () => _deleteItem(item.id),
-              )
-            : null,
       ),
     );
   }
@@ -166,3 +215,4 @@ class _ShopPageState extends State<ShopPage> {
     }
   }
 }
+

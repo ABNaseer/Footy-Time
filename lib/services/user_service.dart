@@ -130,7 +130,9 @@ class UserService {
         return {
           'name': data['name'],
           'primaryPosition': data['primaryPosition'],
+          'phone': data['phone'] ?? 'Not provided',
           'profilePicture': data['profilePicture'],
+
         };
       }
       return null;
