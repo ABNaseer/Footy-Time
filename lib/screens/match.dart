@@ -8,7 +8,7 @@ class MatchPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Text(
-          'Match Page',
+          'Matches will show here',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),

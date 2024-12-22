@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/news_service.dart'; // Import the NewsService
-import 'package:intl/intl.dart';
-
 class NewsPage extends StatefulWidget {
   @override
   _NewsPageState createState() => _NewsPageState();
