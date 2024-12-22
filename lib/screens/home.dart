@@ -4,7 +4,7 @@
   import 'package:mad/screens/news.dart';
   import 'profile.dart'; // Import your profile page
   import 'team.dart'; // Import your team page
-  import 'matches.dart'; // Import your tournament page
+  import 'match.dart'; // Import your tournament page
   import 'shop.dart'; // Import your shop page
   import 'login.dart'; // Import login page
 
