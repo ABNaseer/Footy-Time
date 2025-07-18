@@ -1,7 +1,6 @@
 # Footy Time
 
-## Download the App
-[Download APK](https://github.com/ABNaseer/Footy-Time/releases/download/v1.0.0/app-release.apk)
+## Download [Here](https://github.com/ABNaseer/Footy-Time/releases/download/v1.0.0/app-release.apk)
 
 ### The Ultimate Football Companion App
 
