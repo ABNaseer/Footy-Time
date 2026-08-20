@@ -1,4 +1,4 @@
-# Footy Time
+# Footy-Time
 
 ## Download [Here](https://github.com/ABNaseer/Footy-Time/releases/download/v1.0.0/app-release.apk)
 
