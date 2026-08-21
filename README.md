@@ -25,7 +25,7 @@
 ## Contribute
 If you're interested in contributing, feel free to work on any missing modules and send a pull request.
 
-Contact: [abdullahnaseer02@outlook.com](mailto:abdullahnaseer02@outlook.com)
+Contact: [abdullahnaseer02@outlook.com](mailto:abdullahnaseer02@outlook.com, zohaibbukhari125@gmail.com)
 
 ## Screenshots (Coming Soon)
 A showcase of Footy Time in action will be added soon.
